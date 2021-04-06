@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await MihService.platformVersion;
+      platformVersion = await MihService.startService("13");
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -42,6 +42,10 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future<void> onButtonPress() async{
+    await MihService.stopService;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -50,7 +54,18 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child:
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Running on: $_platformVersion\n'),
+              RaisedButton(
+                child: Text('Stop Service'),
+                onPressed: onButtonPress,
+              ),
+            ],
+          ),
         ),
       ),
     );

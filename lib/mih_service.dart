@@ -8,10 +8,9 @@ class MihService {
       const MethodChannel('mih_service');
 
 
-  static Future<String> get platformVersion async {
-    //final String version = await _channel.invokeMethod('getPlatformVersion');
-    print("onStartCommandwwwwwwww111");
-    final String version =await _channel.invokeMethod("getPlatformVersion", <String, dynamic>{
+  static Future<String>  startService (var tripId) async {
+    final String version =await _channel.invokeMethod("startService", <String, dynamic>{
+      'tripId':tripId,
       'holdWakeLock': false,
       'icon': "ic_stat_hot_tub",
       'color': 0,
@@ -24,6 +23,12 @@ class MihService {
       'stop_text': "stopText",
     });
     //_channel.setMethodCallHandler(_handleMethod);
+    return version;
+  }
+
+  static Future<String> get stopService async {
+    print("onStartStopService");
+    final String version =await _channel.invokeMethod("stopService", <String, dynamic>{});
     return version;
   }
 
