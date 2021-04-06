@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "518113828621",
+    "project_id": "locationtest-a4b90",
+    "storage_bucket": "locationtest-a4b90.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:518113828621:android:264362f83f7401b5509a44",
+        "android_client_info": {
+          "package_name": "com.orel.mih_service"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "518113828621-4osohs1oaip8ks2g3jnq2d34kk4f9p3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCUita87qaW_HtYgfsaPsm68N7P7TmbL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "518113828621-4osohs1oaip8ks2g3jnq2d34kk4f9p3o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
