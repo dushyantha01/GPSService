@@ -44,7 +44,7 @@ public class CloudService {
 
         trip.put("tripDetails", tripDetails);
         trip.put("inActive", "");
-        trip.put("timestamp","");
+        trip.put("timestamp",timeStamps);
 
         updateSelfTrip(docId,trip);
     };
