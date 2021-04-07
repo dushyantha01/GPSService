@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -26,10 +27,11 @@ public class CloudService {
 
     public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp){
 
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Log.e("CS-doc", docId);
         Map<String, Object> trip = new HashMap<>();
         Map<String, Object> tripDetails = new HashMap<>();
-        Map<String, Object> timeStamps = new HashMap<>();
+        Map<String, Object> tripTimestamps = new HashMap<>();
         trip.put("isTripEnd", true);
 
         tripDetails.put("amountDetails","");
@@ -39,12 +41,12 @@ public class CloudService {
         tripDetails.put("totalPrice","");
         tripDetails.put("totalDistance","");
 
-        timeStamps.put("tripStartTimestamp",startTimeStamp);
-        timeStamps.put("tripEndTimestamp",new Timestamp(new java.util.Date().getTime()));
+        tripTimestamps.put("tripStartTimestamp",startTimeStamp);
+        tripTimestamps.put("tripEndTimestamp",dateFormat.format(new Date()));
 
         trip.put("tripDetails", tripDetails);
         trip.put("inActive", "");
-        trip.put("timestamp",timeStamps);
+        trip.put("timestamp",tripTimestamps);
 
         updateSelfTrip(docId,trip);
     };

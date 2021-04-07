@@ -68,7 +68,7 @@ public class LocationService extends Service implements LocationListener {
     // end
 
     private String tripId= null;
-    private String timeStamp= null;
+    private String startTimestamp= null;
 
     private boolean userStopForegroundService = false;
 
@@ -98,7 +98,7 @@ public class LocationService extends Service implements LocationListener {
 
                 Bundle bundle = intent.getExtras();
                 tripId = bundle.getString("tripId");
-                timeStamp = bundle.getString("timestamp");
+                startTimestamp = bundle.getString("startTimestamp");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                             "flutter_foreground_service_channel",
@@ -282,7 +282,7 @@ public class LocationService extends Service implements LocationListener {
         geoPoint.put("lt",location.getLatitude());
         geoPoint.put("ln",location.getLongitude());
         geoHistory.add(geoPoint);
-        cService.updateTripGeo(tripId,geoHistory,timeStamp);
+        cService.updateTripGeo(tripId,geoHistory,startTimestamp);
     }
 
     private class TimerTaskToGetLocation extends TimerTask {

@@ -8,10 +8,10 @@ class MihService {
       const MethodChannel('mih_service');
 
 
-  static Future<String>  startService (var tripId,var startTimeStamp) async {
+  static Future<String>  startService (var tripId,var startTimestamp) async {
     final String version =await _channel.invokeMethod("startService", <String, dynamic>{
       'tripId':tripId,
-      'timestamp':startTimeStamp,
+      'startTimestamp':startTimestamp,
       'holdWakeLock': false,
       'icon': "ic_stat_hot_tub",
       'color': 0,
