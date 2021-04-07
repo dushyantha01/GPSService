@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,21 +24,27 @@ public class CloudService {
         _db = FirebaseFirestore.getInstance();
     }
 
-    public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory){
+    public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp){
 
         Log.e("CS-doc", docId);
         Map<String, Object> trip = new HashMap<>();
         Map<String, Object> tripDetails = new HashMap<>();
+        Map<String, Object> timeStamps = new HashMap<>();
         trip.put("isTripEnd", true);
+
         tripDetails.put("amountDetails",0);
         tripDetails.put("bgService","");
         tripDetails.put("tripGeoHistory",geoHistory);
         tripDetails.put("endGeo",0);
         tripDetails.put("totalPrice",0);
         tripDetails.put("totalDistance",0);
+
+        timeStamps.put("tripStartTimestamp",startTimeStamp);
+        timeStamps.put("tripEndTimestamp",new Timestamp(new java.util.Date().getTime()));
+
         trip.put("tripDetails", tripDetails);
         trip.put("inActive", "");
-        trip.put("timestamp",new Date());
+        trip.put("timestamp","");
 
         updateSelfTrip(docId,trip);
     };

@@ -139,6 +139,7 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
       final String icon = call.argument("icon");
       final int color = call.argument("color");
       final String tripId = call.argument("tripId");
+      final String timestamp = call.argument("timestamp");
       final String title = call.argument("title");
       final String content = call.argument("content");
       final String subtext = call.argument("subtext");
@@ -147,7 +148,7 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
       final String stopIcon = call.argument("stop_icon");
       final String stopText = call.argument("stop_text");
 
-      launchForegroundService(tripId,icon, color, title, content, subtext, chronometer, stopAction, stopIcon, stopText);
+      launchForegroundService(timestamp,tripId,icon, color, title, content, subtext, chronometer, stopAction, stopIcon, stopText);
       result.success("startForegroundService");
 
     } else if (call.method.equals("stopService")) {
@@ -171,7 +172,7 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
     }
   }
 
-  private void launchForegroundService(String tripId,String icon, int color, String title, String content, String subtext,
+  private void launchForegroundService(String timestamp,String tripId,String icon, int color, String title, String content, String subtext,
                                        Boolean chronometer, Boolean stopAction, String stopIcon,
                                        String stopText) {
     Log.e("TAG", "launch service called");
@@ -180,6 +181,7 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
     intent.putExtra("icon", icon);
     intent.putExtra("color", color);
     intent.putExtra("tripId", tripId);
+    intent.putExtra("timestamp", timestamp);
     intent.putExtra("title", title);
     intent.putExtra("content", content);
     intent.putExtra("subtext", subtext);

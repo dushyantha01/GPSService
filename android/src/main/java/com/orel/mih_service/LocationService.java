@@ -59,12 +59,16 @@ public class LocationService extends Service implements LocationListener {
     public static final int MSG_SAY_HELLO = 1;
     public static final int MSG_LOCATION_LISTENING = 101;
     private Messenger messengerListner = null;
-    private String tripId= null;
+
     private List<Map<String, Object>> geoHistory;
     // end //
 
     // firestore functions -start
     private CloudService cService;
+    // end
+
+    private String tripId= null;
+    private String timeStamp= null;
 
     private boolean userStopForegroundService = false;
 
@@ -94,6 +98,7 @@ public class LocationService extends Service implements LocationListener {
 
                 Bundle bundle = intent.getExtras();
                 tripId = bundle.getString("tripId");
+                timeStamp = bundle.getString("timestamp");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                             "flutter_foreground_service_channel",
@@ -275,9 +280,9 @@ public class LocationService extends Service implements LocationListener {
     private void fn_update(Location location){
         Map<String, Object> geoPoint = new HashMap<>();
         geoPoint.put("lt",location.getLatitude());
-        geoPoint.put("ln",location.getLatitude());
+        geoPoint.put("ln",location.getLongitude());
         geoHistory.add(geoPoint);
-        cService.updateTripGeo(tripId,geoHistory);
+        cService.updateTripGeo(tripId,geoHistory,timeStamp);
     }
 
     private class TimerTaskToGetLocation extends TimerTask {
