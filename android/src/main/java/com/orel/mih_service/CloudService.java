@@ -32,12 +32,12 @@ public class CloudService {
         Map<String, Object> timeStamps = new HashMap<>();
         trip.put("isTripEnd", true);
 
-        tripDetails.put("amountDetails",0);
+        tripDetails.put("amountDetails","");
         tripDetails.put("bgService","");
         tripDetails.put("tripGeoHistory",geoHistory);
-        tripDetails.put("endGeo",0);
-        tripDetails.put("totalPrice",0);
-        tripDetails.put("totalDistance",0);
+        tripDetails.put("endGeo","");
+        tripDetails.put("totalPrice","");
+        tripDetails.put("totalDistance","");
 
         timeStamps.put("tripStartTimestamp",startTimeStamp);
         timeStamps.put("tripEndTimestamp",new Timestamp(new java.util.Date().getTime()));
