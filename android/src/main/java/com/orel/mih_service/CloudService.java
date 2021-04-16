@@ -7,12 +7,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.Timestamp;
 
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +27,9 @@ public class CloudService {
         _db = FirebaseFirestore.getInstance();
     }
 
-    public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp){
+    public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp)  {
 
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Log.e("CS-doc", docId);
         Map<String, Object> trip = new HashMap<>();
         Map<String, Object> tripDetails = new HashMap<>();
@@ -37,13 +39,17 @@ public class CloudService {
         tripDetails.put("amountDetails","");
         tripDetails.put("bgService","");
         tripDetails.put("tripGeoHistory",geoHistory);
-        tripDetails.put("endGeo","");
+        //tripDetails.put("endGeo","");
         tripDetails.put("totalPrice","");
         tripDetails.put("totalDistance","");
 
-        tripTimestamps.put("tripStartTimestamp",startTimeStamp);
-        tripTimestamps.put("tripEndTimestamp",dateFormat.format(new Date()));
-
+        try {
+            tripTimestamps.put("tripStartTimestamp",new Timestamp(dateFormat.parse(startTimeStamp)));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        tripTimestamps.put("tripEndTimestamp", new Timestamp(new Date()));
+        //dateFormat.format(new Date())
         trip.put("tripDetails", tripDetails);
         trip.put("inActive", "");
         trip.put("timestamp",tripTimestamps);

@@ -33,6 +33,19 @@ class MihService {
     return version;
   }
 
+  static Future<String> get bindService async {
+    print("onStartBindService");
+    final String version =await _channel.invokeMethod("bindService", <String, dynamic>{});
+    return version;
+  }
+
+  static Future<String> get currentLocation async {
+    print("getCurrentLocation");
+    final String currentLocation =await _channel.invokeMethod("currentLocation", <String, dynamic>{});
+    print("currentLocation =$currentLocation");
+    return currentLocation;
+  }
+
   Future<dynamic> _handleMethod(MethodCall call) async {
     switch (call.method) {
       case "getPlatformVersion":

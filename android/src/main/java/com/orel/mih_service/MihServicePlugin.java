@@ -4,7 +4,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -31,6 +35,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
+
+
 /** MihServicePlugin */
 public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will the communication between Flutter and native Android
@@ -44,6 +50,10 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
   private long dartServiceMethodHandle = -1;
   private boolean serviceStarted = false;
 
+  //gps based -start
+  LocationListener locationListener=null;
+  LocationManager locationManager= null;
+  //  end
   //  Messenger for communicating with the service.
   Messenger mMessenger = null;
   // Flag indicating whether we have called bind on the service.
@@ -156,17 +166,46 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
       Log.e("TAG", "method called stopService");
       Intent intent = new Intent(context, LocationService.class);
       intent.setAction(STOP_FOREGROUND_ACTION);
-      context.unbindService(mConnection);
+      //
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         context.startForegroundService(intent);
       } else {
         context.startService(intent);
       }
+      context.unbindService(mConnection);
       result.success("stopForegroundService");
     }
-    else if (call.method.equals("test")) {
+    else if (call.method.equals("bindService")) {
+      Intent intent = new Intent(context, LocationService.class);
+      context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+    else if (call.method.equals("currentLocation")) {
+        // Acquire a reference to the system Location Manager
+       locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-    }else
+        // Define a listener that responds to location updates
+        locationListener = new LocationListener() {
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+        @Override
+        public void onLocationChanged(Location location) {
+          Log.e("success", ""+location.getLatitude()+","+location.getLongitude());
+          locationManager.removeUpdates(locationListener);
+          result.success(""+location.getLatitude()+","+location.getLongitude());
+
+        }
+        public void onProviderEnabled(String provider) {}
+
+        public void onProviderDisabled(String provider) {}
+      };
+
+// Register the listener with the Location Manager to receive location updates
+      locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    }
+    else
     {
       result.notImplemented();
     }
@@ -199,7 +238,6 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
     serviceStarted = true;
 
     //start locatioin listening
-
     //startServiceLoop();
     //callbackChannel.invokeMethod("onStarted", null);
   }
@@ -208,6 +246,6 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     channel.setMethodCallHandler(null);
     Log.e("TAG DEATCHED", "DEATACHED FROM ENGINE");
-    //context.unbindService(mConnection);
+    context.unbindService(mConnection);
   }
 }

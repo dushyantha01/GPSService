@@ -48,7 +48,7 @@ public class LocationService extends Service implements LocationListener {
     Location location;
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
-    long notify_interval = 5000;
+    long notify_interval = 4000;
     public static String str_receiver = "servicetutorial.service.receiver";
     Intent intent;
     // end //
@@ -139,7 +139,7 @@ public class LocationService extends Service implements LocationListener {
                         "LocationService::lock");
                 wakeLock.acquire();
                 mTimer = new Timer();
-                mTimer.schedule(new TimerTaskToGetLocation(),5,notify_interval);
+                mTimer.schedule(new TimerTaskToGetLocation(),4,notify_interval);
                 break;
             case MihServicePlugin.STOP_FOREGROUND_ACTION:
                 Log.e("TAG", "service called stopService");

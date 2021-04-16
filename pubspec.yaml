@@ -1,6 +1,6 @@
 name: mih_service
 description: A new Flutter plugin.
-version: 0.0.6
+version: 0.0.12
 homepage: https://github.com/dushyantha01/GPSService
 
 environment:
@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
 
 dev_dependencies:
   flutter_test:
