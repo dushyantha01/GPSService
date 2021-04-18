@@ -70,8 +70,12 @@ public class MihServicePlugin implements FlutterPlugin, MethodCallHandler {
           break;
         case LocationService.MSG_LOCATION_LISTENING:
           String location = msg.getData().getString("location");
-          Toast.makeText(context,location,Toast.LENGTH_SHORT).show();
+          //Toast.makeText(context,location,Toast.LENGTH_SHORT).show();
           //textStrValue.setText("Str Message: " + str1);
+        case LocationService.MSG_DISTENCE_LISTENING:
+          //String distance = msg.getData().getString("distance");
+          String total_distance = msg.getData().getString("total_distance");
+          Toast.makeText(context,total_distance,Toast.LENGTH_SHORT).show();
           break;
         default:
           super.handleMessage(msg);

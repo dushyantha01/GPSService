@@ -22,12 +22,13 @@ import java.util.Map;
 
 public class CloudService {
     public FirebaseFirestore _db;
+    private boolean status=false;
 
     public CloudService(){
         _db = FirebaseFirestore.getInstance();
     }
 
-    public void updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp)  {
+    public boolean updateTripGeo(String docId, List<Map<String, Object>> geoHistory,String startTimeStamp,double distance)  {
 
         final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Log.e("CS-doc", docId);
@@ -41,7 +42,7 @@ public class CloudService {
         tripDetails.put("tripGeoHistory",geoHistory);
         //tripDetails.put("endGeo","");
         tripDetails.put("totalPrice","");
-        tripDetails.put("totalDistance","");
+        tripDetails.put("totalDistance",distance);
 
         try {
             tripTimestamps.put("tripStartTimestamp",new Timestamp(dateFormat.parse(startTimeStamp)));
@@ -54,17 +55,28 @@ public class CloudService {
         trip.put("inActive", "");
         trip.put("timestamp",tripTimestamps);
 
-        updateSelfTrip(docId,trip);
+       return updateSelfTrip(docId,trip);
     };
 
-    public void updateSelfTrip(String docId, Map<String, Object> map) {
+    public boolean updateSelfTrip(String docId, Map<String, Object> map) {
+
         _db.collection("trips").document(docId).update(map)
                 .addOnSuccessListener(new OnSuccessListener < Void > () {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.e("CS", "Location Updated");
+                        status= true;
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e)
+                    {
+                        //Toast error using method -> e.getMessage()
+                        status= false;
                     }
                 });
+        return status;
         //return ref.set(map, SetOptions(merge: true));
     }
     }

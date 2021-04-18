@@ -23,6 +23,8 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
+import com.google.type.LatLng;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +53,7 @@ public class LocationService extends Service implements LocationListener {
     long notify_interval = 4000;
     public static String str_receiver = "servicetutorial.service.receiver";
     Intent intent;
+    private double totalDistance = 0;
     // end //
 
     // messenger service used for communicate with dart -start//
@@ -58,6 +61,7 @@ public class LocationService extends Service implements LocationListener {
     private static final String HELLO = "hello!";
     public static final int MSG_SAY_HELLO = 1;
     public static final int MSG_LOCATION_LISTENING = 101;
+    public static final int MSG_DISTENCE_LISTENING = 102;
     private Messenger messengerListner = null;
 
     private List<Map<String, Object>> geoHistory;
@@ -65,6 +69,7 @@ public class LocationService extends Service implements LocationListener {
 
     // firestore functions -start
     private CloudService cService;
+    private int dataOfflineSyncCount = 0;
     // end
 
     private String tripId= null;
@@ -118,6 +123,7 @@ public class LocationService extends Service implements LocationListener {
                         .setOngoing(true);
 
                 if (bundle.getBoolean("stop_action")) {
+
                     Intent stopSelf = new Intent(this, LocationService.class);
                     stopSelf.setAction(ACTION_STOP_SERVICE);
 
@@ -143,7 +149,11 @@ public class LocationService extends Service implements LocationListener {
                 break;
             case MihServicePlugin.STOP_FOREGROUND_ACTION:
                 Log.e("TAG", "service called stopService");
-                stopFlutterForegroundService();
+                //if(dataOfflineSyncCount>1){
+                  //  Toast.makeText(getApplicationContext(),"Please Check th e internet connection",Toast.LENGTH_SHORT).show();
+                    //}else {
+                    stopFlutterForegroundService();
+                //}
                 break;
             case ACTION_STOP_SERVICE:
                 stopFlutterForegroundService();
@@ -233,8 +243,8 @@ public class LocationService extends Service implements LocationListener {
                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     if (location!=null){
 
-                        Log.e("latitude",location.getLatitude()+"");
-                        Log.e("longitude",location.getLongitude()+"");
+                        //Log.e("latitude",location.getLatitude()+"");
+                        //Log.e("longitude",location.getLongitude()+"");
 
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
@@ -251,8 +261,8 @@ public class LocationService extends Service implements LocationListener {
                 if (locationManager!=null){
                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     if (location!=null){
-                        Log.e("latitude",location.getLatitude()+"");
-                        Log.e("longitude",location.getLongitude()+"");
+                        //Log.e("latitude",location.getLatitude()+"");
+                        //Log.e("longitude",location.getLongitude()+"");
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         if(messengerListner != null)
@@ -261,11 +271,11 @@ public class LocationService extends Service implements LocationListener {
                             stringdata.putString("location", latitude+","+longitude);
                             Message msg = Message.obtain(null, MSG_LOCATION_LISTENING);
                             msg.setData(stringdata);
-                            try {
-                                messengerListner.send(msg);
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            }
+                            //try {
+                                //messengerListner.send(msg);
+                            //} catch (RemoteException e) {
+                            //    e.printStackTrace();
+                            //}
                         }
                         fn_update(location);
                     }
@@ -278,11 +288,103 @@ public class LocationService extends Service implements LocationListener {
     }
 
     private void fn_update(Location location){
+        //dataSync=false;
         Map<String, Object> geoPoint = new HashMap<>();
         geoPoint.put("lt",location.getLatitude());
         geoPoint.put("ln",location.getLongitude());
         geoHistory.add(geoPoint);
-        cService.updateTripGeo(tripId,geoHistory,startTimestamp);
+        if(geoHistory.size()>1){
+            //CalculationByDistance(geoHistory.get(geoHistory.size()-2),geoHistory.get(geoHistory.size()-1));
+            meterDistanceBetweenPoints( ((Double)geoHistory.get(geoHistory.size()-2).get("lt")).floatValue(),
+                    ((Double)geoHistory.get(geoHistory.size()-2).get("ln")).floatValue(),
+                    ((Double)geoHistory.get(geoHistory.size()-1).get("lt")).floatValue(),
+                    ((Double)geoHistory.get(geoHistory.size()-1).get("ln")).floatValue());
+
+        }
+        boolean dataSync=cService.updateTripGeo(tripId,geoHistory,startTimestamp,totalDistance);
+
+        if(dataSync){
+            dataOfflineSyncCount=0;
+        }else{
+            dataOfflineSyncCount+=1;
+        }
+    }
+
+    public double CalculationByDistance(Map<String, Object> StartP, Map<String, Object> EndP) {
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = (Double)StartP.get("lt");
+        Log.i("Radius Value", "st lat1 = " + lat1);
+        double lat2 = (Double)EndP.get("lt");
+        Log.i("Radius Value", "end lat2 = " + lat2);
+        double lon1 = (Double)StartP.get("ln");
+        Log.i("Radius Value", "st ln1 = " + lon1);
+        double lon2 = (Double)EndP.get("ln");
+        Log.i("Radius Value", "end ln2 = " + lon2);
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        Log.i("Radius Value", "a = " + a);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        Log.i("Radius Value", "c = " + c);
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        Log.i("Radius Value", "km = " + km);
+        DecimalFormat newFormat = new DecimalFormat("####");
+        int kmInDec = Integer.valueOf(newFormat.format(km));
+        Log.i("Radius Value", "kmD = " + kmInDec);
+        double meter = valueResult % 1000;
+        totalDistance=totalDistance+meter;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
+                + " Meter   " + meterInDec);
+        if(messengerListner != null)
+        {
+            Bundle stringdata = new Bundle();
+            stringdata.putString("distance", "   KM  " + kmInDec+ " Meter   " + meterInDec);
+            stringdata.putString("total_distance", " Meter   " + Integer.valueOf(newFormat.format(totalDistance)));
+            Message msg = Message.obtain(null, MSG_DISTENCE_LISTENING);
+            msg.setData(stringdata);
+            try {
+                messengerListner.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        return Radius * c;
+    }
+
+    private void meterDistanceBetweenPoints(float lat_a, float lng_a, float lat_b, float lng_b) {
+        float pk = (float) (180.f/Math.PI);
+
+        float a1 = lat_a / pk;
+        float a2 = lng_a / pk;
+        float b1 = lat_b / pk;
+        float b2 = lng_b / pk;
+
+        double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
+        double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
+        double t3 = Math.sin(a1) * Math.sin(b1);
+        double tt = Math.acos(t1 + t2 + t3);
+        Log.i("Radius Value", "meters = " + (6366000 * tt));
+        if((6366000 * tt)>1){
+        totalDistance=totalDistance+(6366000 * tt);}
+        if(messengerListner != null)
+        {
+            Bundle stringdata = new Bundle();
+            //stringdata.putString("distance", "   KM  " + kmInDec+ " Meter   " + meterInDec);
+            stringdata.putString("total_distance", " Meter   " + totalDistance);
+            Message msg = Message.obtain(null, MSG_DISTENCE_LISTENING);
+            msg.setData(stringdata);
+            try {
+                messengerListner.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        //return 6366000 * tt;
     }
 
     private class TimerTaskToGetLocation extends TimerTask {
